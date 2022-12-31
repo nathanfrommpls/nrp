@@ -137,3 +137,6 @@ dmypy.json
 auto-save-list
 tramp
 .\#*
+
+# Database Connection Parameters
+dbconn.json
