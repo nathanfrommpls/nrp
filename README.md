@@ -5,7 +5,28 @@ It is also an opportunity for the author to learn flask. There are several varia
 
 "Minimum viable product" covers all manner of sins and this project will be no exception.
 
+The last gratuitious caveat is that this project is what happens when a infrastructure person tries to write their first fullstack project while sitting on the sofa with their spouse with the television on.
+
 ## Initial Features
 - Record health metrics: mass(weight) and blood pressure to start.
 - Record "daily habits".
 - Daily Calorie Counting
+
+## Database Setup
+For development I'm using the [official Postgres Docker image.](https://www.docker.com/blog/how-to-use-the-postgres-docker-official-image/)
+
+This will give you a postgres database listening on port 5432 and then login with the commandline client:
+```
+docker pull postgres
+docker run -p 5432:5432 --name nrp-pgsql -e POSTGRES_PASSWORD=changeme -d postgres
+psql -h localhost -U postgres
+```
+
+You can then create the required database and tables:
+```
+CREATE DATABASE nrp;
+CREATE TABLE users ( uid SERIAL PRIMARY KEY, name TEXT, birthdate DATE, height SMALLINT, sex SMALLINT );
+CREATE TABLE health_metrics ( uid INT, date DATE, mass REAL, systolic SMALLINT, diastolic SMALLINT );
+```
+
+Before the development is finished you'll need to insert some valid data.

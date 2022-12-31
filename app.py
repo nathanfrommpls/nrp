@@ -53,7 +53,7 @@ def get_user_info( uid ):
         if query_results == None:
             raise Exception("No user info returned from database.")
 
-        user_info = { "name": query_results[0], "birthdate": query_results[1], "height": query_results[2], "sex": query_results[3], "mass": query_results[4], "systolic": query_results[5], "diastolic": query_results[6] }
+        user_info = { "name": query_results[0], "birthdate": query_results[1], "height": query_results[2], "sex": query_results[3], "mass": query_results[5], "systolic": query_results[6], "diastolic": query_results[7] }
         cur.close()
         conn.close()
         return user_info

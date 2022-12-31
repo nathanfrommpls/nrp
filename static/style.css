@@ -19,3 +19,25 @@ a {
 a:hover {
     border-bottom: 0;
 }
+
+.dashmain {
+    margin: 5% auto;
+    background: #f2f2f2;
+    color: #444444;
+    max-width: 80%;
+    text-align: center;
+}
+
+.dashleft {
+    margin: 5% auto;
+    width: 40%;
+    text-align: left;
+    float: left;
+}
+
+.dashright {
+    margin: 5% auto;
+    width: 40%;
+    text-align: left;
+    float: right;
+}

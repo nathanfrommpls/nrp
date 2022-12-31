@@ -1,21 +1,67 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
-		<title>Habits</title>
-		<meta name="description" content="NRP Dashboard"/>
-		<link rel="canonical" href="http://127.0.0.1/"/>
-		<link rel="stylesheet" href="/static/style.css">
+	  <meta charset="UTF-8">
+	  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
+	  <title>NRP</title>
+	  <meta name="description" content="NRP Dashboard"/>
+	  <link rel="canonical" href="http://127.0.0.1/"/>
+	  <link rel="stylesheet" href="/static/style.css">
 	</head>
 	<body>
-	        <h1>NRP Dashboard</h1>
-	        <p>USER: {{ username }}</p>
-		<p>AGE: {{ age }}</p>
-		<p>HEIGHT: {{ height }}</p>
-		<p>SEX: {{ sex }}</p>
-		<p>MASS: {{ mass }}</p>
-		<p>SYSTOLIC: {{ systolic }}</p>
-		<p>DIASTOLIC: {{ diastolic }}</p>
+	  <div class="dashmain">
+	    <div class="dashuser">
+	      <h1>NRP Dashboard</h1>
+	      <h2>{{ username }}</h2>
+	      <span>Age:</span><span>{{ age }}</span>
+	      <span>Height:</span><span>{{ height }}</span>
+	      <span>Sex:</span><span>{{ sex }}</span>
+	      <span>Height:</span><span>{{ height }}</span>
+	      <span>Mass:</span><span>{{ mass }}</span>
+	      <span>Blood Pressure:</span>
+	      <span>Systolic:</span><span>{{ systolic }}</span>
+	      <span>Diastolic:</span><span>{{ diastolic }}</span>
+	    </div>
+	    <div class="dashnav">
+	      <span><a href="./user/">User Data & Settings</a></span>
+	      <span><a href="./food/">Food Journal</a></span>
+	      <span><a href="./admin/">Administrative Console</a></span>
+	    </div>
+	    <div class="dashleft">
+	      <h2>Schedule for Today</h2>
+	      <hr />
+	    </div>
+	    <div class="dashright">
+	      <h2>Daily Summary</h2>
+	      <hr />
+	      <span>Calories: </span><span> 900 </span>/<span> 2500 </span>
+	      <hr />
+	      <br />
+	      <form action="/today" method="post">
+		<input type="checkbox" id="exercise" name="exercise" value="0">
+  		<label for="exercise">Exercise</label><br />
+		<input type="checkbox" id="stretch" name="stretch" value="0">
+		<label for="stretch">Stretch</label><br />
+		<input type="checkbox" id="sit" name="sit" value="0">
+  		<label for="sit">Sit</label><br />
+		<input type="checkbox" id="sss" name="sss" value="0">
+  		<label for="sss">SSS</label><br />
+		<input type="checkbox" id="journal" name="journal" value="0">
+  		<label for="journal">Journal</label><br />
+		<input type="checkbox" id="vitamins" name="vitamins" value="0">
+		<label for="vitamins">Vitamins</label><br />
+		<input type="checkbox" id="brush_am" name="brush_am" value="0">
+		<label for="brush_am">Brush Teeth AM</label><br />
+		<input type="checkbox" id="brush_pm" name="brush_pm" value="0">
+		<label for="brush_pm">Brush Teeth PM</label><br />
+		<input type="checkbox" id="floss" name="floss" value="0">
+  		<label for="floss">Floss Teeth</label><br />
+		<input type="number" step="any" id="water" name="water" value="water_volume">
+  		<label for="number">Liters of Water Drank</label><br />
+		<span>Liters of Water Target: 3.5</span><br />
+		<input type="submit" id="update_habits" name="update_habits" value="Update Habits">
+	      </form>
+	    </div>
+	  </div>
 	</body>
 </html>
