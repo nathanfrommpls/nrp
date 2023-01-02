@@ -27,6 +27,7 @@ You can then create the required database and tables:
 CREATE DATABASE nrp;
 CREATE TABLE users ( uid SERIAL PRIMARY KEY, name TEXT, birthdate DATE, height SMALLINT, sex SMALLINT );
 CREATE TABLE health_metrics ( uid INT, date DATE, mass REAL, systolic SMALLINT, diastolic SMALLINT );
+CREATE TABLE habits ( date date, uid INTEGER, exercise BOOLEAN, stretch BOOLEAN, sit BOOLEAN, sss BOOLEAN, journal BOOLEAN, vitamins BOOLEAN, brush_am BOOLEAN, brush_pm INTGER, floss BOOLEAN, water REAL, UNIQUE ( date, uid ));
 ```
 
 Before the development is finished you'll need to insert some valid data.

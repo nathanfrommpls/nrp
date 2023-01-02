@@ -38,25 +38,25 @@
 	      <hr />
 	      <br />
 	      <form action="/today" method="post">
-		<input type="checkbox" id="exercise" name="exercise" value="0">
+		<input type="checkbox" id="exercise" name="exercise" value="1" {% if exercise %} checked {% endif %}>
   		<label for="exercise">Exercise</label><br />
-		<input type="checkbox" id="stretch" name="stretch" value="0">
+		<input type="checkbox" id="stretch" name="stretch" value="1" {% if stretch %} checked {% endif %}>
 		<label for="stretch">Stretch</label><br />
-		<input type="checkbox" id="sit" name="sit" value="0">
+		<input type="checkbox" id="sit" name="sit" value="1" {% if sit %} checked {% endif %}>
   		<label for="sit">Sit</label><br />
-		<input type="checkbox" id="sss" name="sss" value="0">
+		<input type="checkbox" id="sss" name="sss" value="1" {% if sss %} checked {% endif %}>
   		<label for="sss">SSS</label><br />
-		<input type="checkbox" id="journal" name="journal" value="0">
+		<input type="checkbox" id="journal" name="journal" value="1" {% if journal %} checked {% endif %}>
   		<label for="journal">Journal</label><br />
-		<input type="checkbox" id="vitamins" name="vitamins" value="0">
+		<input type="checkbox" id="vitamins" name="vitamins" value="1" {% if vitamins %} checked {% endif %}>
 		<label for="vitamins">Vitamins</label><br />
-		<input type="checkbox" id="brush_am" name="brush_am" value="0">
+		<input type="checkbox" id="brush_am" name="brush_am" value="1" {% if brush_am %} checked {% endif %}>
 		<label for="brush_am">Brush Teeth AM</label><br />
-		<input type="checkbox" id="brush_pm" name="brush_pm" value="0">
+		<input type="checkbox" id="brush_pm" name="brush_pm" value="1" {% if brush_pm %} checked {% endif %}>
 		<label for="brush_pm">Brush Teeth PM</label><br />
-		<input type="checkbox" id="floss" name="floss" value="0">
+		<input type="checkbox" id="floss" name="floss" value="1" {% if floss %} checked {% endif %}>
   		<label for="floss">Floss Teeth</label><br />
-		<input type="number" step="any" id="water" name="water" value="water_volume">
+		<input type="number" step="any" id="water" name="water" value="{{ water_drank }}">
   		<label for="number">Liters of Water Drank</label><br />
 		<span>Liters of Water Target: 3.5</span><br />
 		<input type="submit" id="update_habits" name="update_habits" value="Update Habits">
