@@ -10,14 +10,6 @@ def dashboard():
     today = datetime.date.today()
     try:
         user_info = quien_es( 1 )
-        dob = user_info['birthdate']
-        calculated_age = today.year - dob.year
-        if user_info['sex'] == 1:
-            iso_5218_sex = "Male"
-        elif user_info['sex'] == 2:
-            iso_5218_sex = "Female"
-        else:
-            raise Exception("Invalid value received for sex.")
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
@@ -79,14 +71,30 @@ def dashboard():
         except Exception as e:
             return render_template("exception.html",exception_string="While updating habits: " + str(e))
         
-        return render_template("dashboard.html",username=user_info['name'],age=calculated_age,height=user_info['height'],sex=iso_5218_sex,mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water)
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
     else:
         try:
             habits = current_habits( 1 )
         except Exception as e:
             return render_template("exception.html",exception_string="While getting current habits: " + str(e))
     
-        return render_template("dashboard.html",username=user_info['name'],age=calculated_age,height=user_info['height'],sex=iso_5218_sex,mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9])
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1))
+
+@app.route("/user/",methods=['GET', 'POST'])
+def user():
+    return render_template("under_construction.html",page_name="user")
+
+@app.route("/food/",methods=['GET', 'POST'])
+def food():
+    return render_template("under_construction.html",page_name="user")
+
+@app.route("/report/",methods=['GET', 'POST'])
+def report():
+    return render_template("under_construction.html",page_name="user")
+
+@app.route("/admin/",methods=['GET', 'POST'])
+def admin():
+    return render_template("under_construction.html",page_name="user")
 
 # Database
 def get_db_conn():
@@ -105,7 +113,11 @@ def get_db_conn():
         return connection
     except Exception as e:
         raise e
- 
+
+# https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation
+    # Activity: 1.2 (Sedentiary), 1.375 (Light Exercise)
+    # 1.55 ( Moderate Exercise ), 1.725 ( Heavy ), 1.9 ( Very Heavy )
+    #return float(((10 * user_prefs[2]) + ( 6.25 * user_prefs[1] ) - ( 5 * user_prefs[0]) + user_prefs[3]) * 1.375)
 def quien_es( uid ):
     try:
         conn = get_db_conn()
@@ -153,4 +165,46 @@ def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am
         conn.close()
     except Exception as e:
         raise e
+
+def calories_target( uid ):
+    today = datetime.date.today()
+    conn = conn_helper()
+    curs = conn.cursor()
+    sql_bindings = [ uid ]
+    result = curs.execute("SELECT age, height, weight, sex FROM users WHERE uid = ?", sql_bindings )
+    user_prefs = result.fetchone()
+    # https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation
+    # Activity: 1.2 (Sedentiary), 1.375 (Light Exercise)
+    # 1.55 ( Moderate Exercise ), 1.725 ( Heavy ), 1.9 ( Very Heavy )
+    return float(((10 * user_prefs[2]) + ( 6.25 * user_prefs[1] ) - ( 5 * user_prefs[0]) + user_prefs[3]) * 1.375)
     
+def iso_5218_sex( sex ):
+    if sex == 1:
+        return "Male"
+    elif sex == 2:
+        return "Female"
+    else:
+        raise Exception("Invalid value received for sex.")
+
+# birthdate must be datetime.date
+# Insufficient precision, technical debt.
+def calculate_age( birthdate ):
+    today = datetime.date.today()
+    return  today.year - birthdate.year
+
+# https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation1
+# 0: Sedentiary
+# 1: Light Exercise
+# 2: Moderate Exercise
+# 3: Heavy Exercise
+# 4: Very Heavy Exercise
+def harris_benedict( age, height, weight, sex, activity ):
+    activity_multiplier = [ 1.2, 1.375, 1.55, 1.725, 1.9 ]
+    if sex == 1:
+        sex_modifer = 5
+    elif sex == 2:
+        sex_modifier = -161
+    else:
+        raise Exception( sex + " is not a valid iso_5218 value." )
+        
+    return int(((10 * weight) + ( 6.25 * height ) - ( 5 * age ) +  sex_modifer) * activity_multiplier[activity])

@@ -13,18 +13,19 @@
 	    <div class="dashuser">
 	      <h1>NRP Dashboard</h1>
 	      <h2>{{ username }}</h2>
-	      <span>Age:</span><span>{{ age }}</span>
-	      <span>Height:</span><span>{{ height }}</span>
-	      <span>Sex:</span><span>{{ sex }}</span>
-	      <span>Height:</span><span>{{ height }}</span>
-	      <span>Mass:</span><span>{{ mass }}</span>
-	      <span>Blood Pressure:</span>
-	      <span>Systolic:</span><span>{{ systolic }}</span>
-	      <span>Diastolic:</span><span>{{ diastolic }}</span>
+	      <span>Age: </span><span>{{ age }}</span>
+	      <span>Height: </span><span>{{ height }}</span>
+	      <span>Sex: </span><span>{{ sex }}</span>
+	      <span>Height: </span><span>{{ height }}</span>
+	      <span>Mass: </span><span>{{ mass }}</span>
+	      <span>Blood Pressure: </span>
+	      <span>Systolic: </span><span>{{ systolic }}</span>
+	      <span>Diastolic: </span><span>{{ diastolic }}</span>
 	    </div>
 	    <div class="dashnav">
 	      <span><a href="./user/">User Data & Settings</a></span>
 	      <span><a href="./food/">Food Journal</a></span>
+	      <span><a href="./report/">Reporting</a></span>
 	      <span><a href="./admin/">Administrative Console</a></span>
 	    </div>
 	    <div class="dashleft">
@@ -34,7 +35,7 @@
 	    <div class="dashright">
 	      <h2>Daily Summary</h2>
 	      <hr />
-	      <span>Calories: </span><span> 900 </span>/<span> 2500 </span>
+	      <span>Calories: </span><span> 900 </span>/<span> {{ target_calories }} </span>
 	      <hr />
 	      <br />
 	      <form action="/" method="post">
