@@ -86,7 +86,12 @@ def user():
 
 @app.route("/food/",methods=['GET', 'POST'])
 def food():
-    return render_template("under_construction.html",page_name="user")
+    try:
+        user_info = quien_es( 1 )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+    
+    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
 
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
