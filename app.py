@@ -91,7 +91,7 @@ def food():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
-    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
+    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1))
 
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
@@ -170,18 +170,6 @@ def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am
         conn.close()
     except Exception as e:
         raise e
-
-def calories_target( uid ):
-    today = datetime.date.today()
-    conn = conn_helper()
-    curs = conn.cursor()
-    sql_bindings = [ uid ]
-    result = curs.execute("SELECT age, height, weight, sex FROM users WHERE uid = ?", sql_bindings )
-    user_prefs = result.fetchone()
-    # https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation
-    # Activity: 1.2 (Sedentiary), 1.375 (Light Exercise)
-    # 1.55 ( Moderate Exercise ), 1.725 ( Heavy ), 1.9 ( Very Heavy )
-    return float(((10 * user_prefs[2]) + ( 6.25 * user_prefs[1] ) - ( 5 * user_prefs[0]) + user_prefs[3]) * 1.375)
     
 def iso_5218_sex( sex ):
     if sex == 1:
@@ -213,3 +201,15 @@ def harris_benedict( age, height, weight, sex, activity ):
         raise Exception( sex + " is not a valid iso_5218 value." )
         
     return int(((10 * weight) + ( 6.25 * height ) - ( 5 * age ) +  sex_modifer) * activity_multiplier[activity])
+
+def eaten_today( uid ):
+    try:
+        sql = "SELECT food.description, eaten_daily.quantity, food.calories * eaten_daily.quantity, food.precision FROM eaten_daily INNER JOIN food ON eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql,[uid])
+        eaten_today = curs.fetchall()
+        # Do I need a if eaten_today == None like in the current function?
+        return eaten_today
+    except Exception as e:
+        raise e

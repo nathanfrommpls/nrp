@@ -11,7 +11,7 @@
 	<body>
 	  <div class="dashmain">
 	    <div class="dashuser">
-	      <h1>NRP Dashboard</h1>
+	      <h1>NRP Eaten Today</h1>
 	      <h2>{{ username }}</h2>
 	      <span>Age: </span><span>{{ age }}</span>
 	      <span>Height: </span><span>{{ height }}</span>
@@ -23,75 +23,35 @@
 	      <span>Diastolic: </span><span>{{ diastolic }}</span>
 	    </div>
 	    <div class="dashnav">
-	      <span><a href="./user/">User Data & Settings</a></span>
-	      <span><a href="./food/">Food Journal</a></span>
-	      <span><a href="./report/">Reporting</a></span>
-	      <span><a href="./admin/">Administrative Console</a></span>
+	      <span><a href="../user/">User Data & Settings</a></span>
+	      <span><a href="../food/">Food Journal</a></span>
+	      <span><a href="../report/">Reporting</a></span>
+	      <span><a href="../admin/">Administrative Console</a></span>
 	    </div>
-	    <div class="dashleft">
-	      <h2>Eaten Today</h2>
-	      <hr />
-     	      <span>Calories: </span><span> 900 </span>/<span> {{ target_calories }} </span>
-	    </div>
-	    <div class="dashright">
-	      <h1>Add Food</h1>
-	      <hr />
-	      <h2>New Food</h2>
-	      <form action="/newfood" method="post">
-		<table>
-		  <tr>
-		    <td>
-		      <input type="text" id="food_description" name="description" value="{{ input_food }}">
-		      <label for="food_description">Description</label>
-		    </td>
-		  <tr>
-		  </tr>
-		    <td>
-		      <input type="number" id="precision" name="precision" value="">
-		      <label for="precision">Precision</label>
-		    </td>
-		  <tr>
-		  </tr>
-		    <td>
-		      <input type="number" step="any" id="calories" name="calories" value="">
-		      <label for="calories">Calories</label>
-		    </td>
-		  <tr>
-		  </tr>
-		    <td>
-		      <input type="number" step="1" id="quantity" name="quantity" value="">
-		      <label for="quantity">Quantity</label>
-		    </td>
-		  <tr>
-		  </tr>
-		    <td>
-		      <input type="submit" id="insert_new_food" name="insert_new_food" value="Insert New Food">
-		    </td>
-		  </tr>
-		</table>
+	    <div class="dashmain">
+	      <br />
+	      <form action="/atethis" method="post">
+		<input type="text" id="food_description" name="description" value="{{ input_food }}">
+		<input type="submit" id="search_food" name="search_food" value="is what I ate.">
 	      </form>
-	  <h2>Food in Database</h2>
-	  <form action="/dbfood" method="post">
-	    <table>
-	      <tr>
-		<th>Select</th>
-		<th>Description</th>
-		<th>Precision</th>
-		<th>Calories</th>
-	      </tr>
-	      {%for food in dbfoods %}
-	      <tr>
-		<td><input type="radio" id="rowid" name="rowid" value="{{ food[0] }}"</td>
-		<td>{{ food[1] }}</td>
-		<td>{{ food[2] }}</td>
-		<td>{{ food[3] }}</td>
-	      </tr>
-	      {%endfor%}
-	    </table>
- 	    <label for="quantity">Quantity</label><br />
-	    <input type="number" step="1" id="quantity" name="quantity" value="">
-	    <input type="submit" id="insert_db_food" name="insert_db_food" value="Insert Food from Database.">
-	  </form>
+	      <h2>Eaten Today</h2>
+     	      <span>Calories: </span><span> 900 </span>/<span> {{ target_calories }} </span>
+	      <table>
+		<tr>
+		  <th>Description</th>
+		  <th>Quantity</th>
+		  <th>Calories</th>
+		  <th>Precision</th>
+		</tr>
+		{%for food in foods %}
+		<tr>
+		  <td>{{ food[0] }}</td>
+		  <td>{{ food[1] }}</td>
+		  <td>{{ food[2] }}</td>
+		  <td>{{ food[3] }}</td>
+		</tr>
+		{%endfor%}
+	      </table>
 	    </div>
 	  </div>
 	</body>
