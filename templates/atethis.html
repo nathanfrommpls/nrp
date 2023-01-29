@@ -2,19 +2,14 @@
 {% include "nav.html" %}
 	    <div class="dashmain">
 	      <br />
+	      <h2>New Food</h2>
 	      <form action="/atethis" method="post">
-		<input type="text" id="food_description" name="description" value="{{ input_food }}">
+		<input type="text" id="food_description" name="description" value="">
+		<input type="number" id="precision" name="precision" value="">
+		<input type="number" id="calories" name="calories" value="">
 		<input type="submit" id="search_food" name="search_food" value="is what I ate.">
 	      </form>
-	      <h2>Eaten Today</h2>
-     	      <span>Calories: </span><span> 900 </span>/<span> {{ target_calories }} </span>
-	      <table>
-		<tr>
-		  <th>Description</th>
-		  <th>Quantity</th>
-		  <th>Calories</th>
-		  <th>Precision</th>
-		</tr>
+	      <h2>From Database</h2>
 		{%for food in foods %}
 		<tr>
 		  <td>{{ food[0] }}</td>
@@ -23,7 +18,6 @@
 		  <td>{{ food[3] }}</td>
 		</tr>
 		{%endfor%}
-	      </table>
 	    </div>
 	  </div>
 	</body>
