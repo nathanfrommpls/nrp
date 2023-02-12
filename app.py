@@ -107,7 +107,7 @@ def atethis():
     
     try:
         foods = search_food(request.form['food_description'])
-        #foods = [ ["Fake Food", "1", "100", "1.0"]]
+        #foods = [ ["Fake Food", "1", "100", "1.0"]]request.form['food_description']
     except Exception as e:
         return render_template("exception.html",exception_string="While search for matching food during ate this: " + str(e))
     
@@ -255,12 +255,13 @@ def eaten_today( uid ):
 
 def search_food( description ):
     try:
-        sql = "SELECT * FROM food WHERE DESCRIPTION ILIKE '%%%s%%';"
+        sql = "SELECT * FROM food WHERE DESCRIPTION ILIKE %(like)s;" # Why this syntax?
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql,[description])
+        curs.execute(sql, {'like': '%'+description+'%'})
         food_records = curs.fetchall()
         # Do I need a if eaten_today == None like in the current function?
         return food_records
     except Exception as e:
         raise e
+
