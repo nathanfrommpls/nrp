@@ -1,0 +1,24 @@
+<!doctype html>
+{% include "nav.html" %}
+	    <div class="dashmain">
+	      <br />
+	      <h2>New Food</h2>
+	      <form action="/atethis/" method="post">
+		<input type="text" id="food_description" name="description" value="">
+		<input type="number" id="precision" name="precision" value="">
+		<input type="number" id="calories" name="calories" value="">
+		<input type="submit" id="search_food" name="search_food" value="is what I ate.">
+	      </form>
+	      <h2>From Database</h2>
+		{%for food in foods %}
+		<tr>
+		  <td>{{ food[0] }}</td>
+		  <td>{{ food[1] }}</td>
+		  <td>{{ food[2] }}</td>
+		  <td>{{ food[3] }}</td>
+		</tr>
+		{%endfor%}
+	    </div>
+	  </div>
+	</body>
+</html>

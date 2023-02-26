@@ -1,0 +1,30 @@
+<!doctype html>
+{% include "nav.html" %}
+	    <div class="dashmain">
+	      <br />
+	      <form action="/atethis/" method="post">
+		<input type="text" id="food_description" name="food_description" value="{{ input_food }}">
+		<input type="submit" id="search_food" name="search_food" value="is what I ate.">
+	      </form>
+	      <h2>Eaten Today</h2>
+     	      <span>Calories: </span><span> 900 </span>/<span> {{ target_calories }} </span>
+	      <table>
+		<tr>
+		  <th>Description</th>
+		  <th>Quantity</th>
+		  <th>Calories</th>
+		  <th>Precision</th>
+		</tr>
+		{%for food in foods %}
+		<tr>
+		  <td>{{ food[0] }}</td>
+		  <td>{{ food[1] }}</td>
+		  <td>{{ food[2] }}</td>
+		  <td>{{ food[3] }}</td>
+		</tr>
+		{%endfor%}
+	      </table>
+	    </div>
+	  </div>
+	</body>
+</html>
