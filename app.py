@@ -98,8 +98,8 @@ def food():
     
     return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1))
 
-@app.route("/atethis/",methods=['GET', 'POST'])
-def atethis():
+@app.route("/atethissearch/",methods=['GET', 'POST'])
+def atethissearch():
     try:
         user_info = quien_es( 1 )
     except Exception as e:
@@ -107,7 +107,6 @@ def atethis():
     
     try:
         foods = search_food(request.form['food_description'])
-        #foods = [ ["Fake Food", "1", "100", "1.0"]]request.form['food_description']
     except Exception as e:
         return render_template("exception.html",exception_string="While search for matching food during ate this: " + str(e))
     
@@ -117,6 +116,34 @@ def atethis():
         return render_template("exception.html",exception_string="While calling ate this: " + str(e))
 
 
+@app.route("/atethisthing/",methods=['POST'])
+def atethisthing():
+    try:
+        uid = 1
+        fid = request.form['fid']
+        quantity = request.form['quantity']
+        insert_food_today( uid, fid, quantity )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
+
+    return redirect("/today/", code=302)
+
+@app.route("/atethisnewthing/",methods=['POST'])
+def atethisnewthing():
+    try:
+        uid = 1
+        quantity = request.form['quantity']
+        precision = request.form['precision']
+        description = request.form['description']
+        calories = request.form['calories']
+        insert_food_db( description, precision, calories )
+        foods = search_food(request.form['description'])
+        insert_food_today( uid, foods[0][0], quantity )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
+
+    return redirect("/today/", code=302)
+    
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
     try:
@@ -265,3 +292,27 @@ def search_food( description ):
     except Exception as e:
         raise e
 
+def insert_food_db( description, precision, calories ):
+    try:
+        # TODO blocked adding to database if it already exists
+        sql = "INSERT INTO food ( description, precision, calories ) values ( %s, %s, %s );"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [description, precision, calories])
+        conn.commit()
+        curs.close()
+        conn.close()
+    except Exception as e:
+        raise e
+
+def insert_food_today( uid, fid, quantity ):
+    try:
+        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( current_date, %s, %s, %s );"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [uid, fid, quantity])
+        conn.commit()
+        curs.close()
+        conn.close()
+    except Exception as e:
+        raise e
