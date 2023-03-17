@@ -76,14 +76,14 @@ def today():
         except Exception as e:
             return render_template("exception.html",exception_string="While updating habits: " + str(e))
         
-        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
     else:
         try:
             habits = current_habits( 1 )
         except Exception as e:
             return render_template("exception.html",exception_string="While getting current habits: " + str(e))
     
-        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1))
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1))
 
 
 
@@ -96,10 +96,10 @@ def food():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
-    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1))
+    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1))
 
-@app.route("/atethis/",methods=['GET', 'POST'])
-def atethis():
+@app.route("/atethissearch/",methods=['GET', 'POST'])
+def atethissearch():
     try:
         user_info = quien_es( 1 )
     except Exception as e:
@@ -107,7 +107,6 @@ def atethis():
     
     try:
         foods = search_food(request.form['food_description'])
-        #foods = [ ["Fake Food", "1", "100", "1.0"]]request.form['food_description']
     except Exception as e:
         return render_template("exception.html",exception_string="While search for matching food during ate this: " + str(e))
     
@@ -117,6 +116,34 @@ def atethis():
         return render_template("exception.html",exception_string="While calling ate this: " + str(e))
 
 
+@app.route("/atethisthing/",methods=['POST'])
+def atethisthing():
+    try:
+        uid = 1
+        fid = request.form['fid']
+        quantity = request.form['quantity']
+        insert_food_today( uid, fid, quantity )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
+
+    return redirect("/today/", code=302)
+
+@app.route("/atethisnewthing/",methods=['POST'])
+def atethisnewthing():
+    try:
+        uid = 1
+        quantity = request.form['quantity']
+        precision = request.form['precision']
+        description = request.form['description']
+        calories = request.form['calories']
+        insert_food_db( description, precision, calories )
+        foods = search_food(request.form['description'])
+        insert_food_today( uid, foods[0][0], quantity )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
+
+    return redirect("/today/", code=302)
+    
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
     try:
@@ -253,6 +280,20 @@ def eaten_today( uid ):
     except Exception as e:
         raise e
 
+def calories_today( uid ):
+    try:
+        total_daily_calories = 0
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql,[uid])
+        rows_calories = curs.fetchall()
+        for row in rows_calories:
+            total_daily_calories = total_daily_calories + row[0] * row[1]
+        return total_daily_calories
+    except Exception as e:
+        raise e
+
 def search_food( description ):
     try:
         sql = "SELECT * FROM food WHERE DESCRIPTION ILIKE %(like)s;" # Why this syntax?
@@ -265,3 +306,27 @@ def search_food( description ):
     except Exception as e:
         raise e
 
+def insert_food_db( description, precision, calories ):
+    try:
+        # TODO blocked adding to database if it already exists
+        sql = "INSERT INTO food ( description, precision, calories ) values ( %s, %s, %s );"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [description, precision, calories])
+        conn.commit()
+        curs.close()
+        conn.close()
+    except Exception as e:
+        raise e
+
+def insert_food_today( uid, fid, quantity ):
+    try:
+        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( current_date, %s, %s, %s );"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [uid, fid, quantity])
+        conn.commit()
+        curs.close()
+        conn.close()
+    except Exception as e:
+        raise e

@@ -3,21 +3,46 @@
 	    <div class="dashmain">
 	      <br />
 	      <h2>New Food</h2>
-	      <form action="/atethis/" method="post">
-		<input type="text" id="food_description" name="description" value="">
-		<input type="number" id="precision" name="precision" value="">
-		<input type="number" id="calories" name="calories" value="">
-		<input type="submit" id="search_food" name="search_food" value="is what I ate.">
-	      </form>
+	      <table class="tbl_atethis">
+		<tr>
+		  <th>Quantity</th>
+		  <th>Description</th>
+		  <th>Precision</th>
+		  <th>Calories</th>
+		  <th></th>
+		</tr>
+		<tr>
+		  <form action="/atethisnewthing/" method="post">
+		    <td><input type="number" id="quantity" name="quantity" value=""></td>
+		    <td><input type="text" id="food_description" name="description" value=""></td>
+		    <td><input type="number" id="precision" name="precision" value=""></td>
+		    <td><input type="number" id="calories" name="calories" value=""></td>
+		    <td><input type="submit" id="search_food" name="search_food" value="is what I ate."></td>
+		  </form>
+		</tr>
+	      </table>
 	      <h2>From Database</h2>
+	      <table class="tbl_atethis">
+		<tr>
+		  <th>Quantity</th>
+		  <th>Description</th>
+		  <th>Precision</th>
+		  <th>Calories</th>
+		  <th></th>
+		</tr>
 		{%for food in foods %}
 		<tr>
-		  <td>{{ food[0] }}</td>
-		  <td>{{ food[1] }}</td>
-		  <td>{{ food[2] }}</td>
-		  <td>{{ food[3] }}</td>
+		  <form action="/atethisthing/" method="post">
+		    <input type="hidden" id="fid" name="fid" value="{{ food[0] }}">
+		    <td><input type="number" id="quantity" name="quantity" value=""></td>
+		    <td>{{ food[1] }}</td>
+		    <td>{{ food[2] }}</td>
+		    <td>{{ food[3] }}</td>
+		    <td><input type="submit" id="search_food" name="search_food" value="is what I ate."></td>
+		  </form>
 		</tr>
 		{%endfor%}
+	      </table>
 	    </div>
 	  </div>
 	</body>
