@@ -126,7 +126,7 @@ def atethisthing():
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
 
-    return redirect("/today/", code=302)
+    return redirect("/food/", code=302)
 
 @app.route("/atethisnewthing/",methods=['POST'])
 def atethisnewthing():
@@ -142,7 +142,7 @@ def atethisnewthing():
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
-    return redirect("/today/", code=302)
+    return redirect("/food/", code=302)
     
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
