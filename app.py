@@ -205,12 +205,12 @@ def quien_es( uid ):
         raise e
     
     
-def current_habits( uid ):
+def current_habits( uid, timezone ):
     try:
-        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = current_date"
+        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = current_date at timezone %s"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [uid])
+        curs.execute(sql, [uid, timezone])
         habit_bools = curs.fetchone()
         if habit_bools == None:
             curs.close()
@@ -223,12 +223,12 @@ def current_habits( uid ):
     except Exception as e:
         raise e
 
-def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ):
+def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, timezone):
     try:
-        sql = "INSERT INTO habits ( date, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ) values ( current_date, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ) ON CONFLICT ( date, uid ) DO UPDATE set exercise = %s, stretch = %s, sit = %s, sss = %s, journal = %s, vitamins = %s, brush_am = %s, brush_pm = %s, floss = %s, water = %s"
+        sql = "INSERT INTO habits ( date, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ) values ( current_date at timezone %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ) ON CONFLICT ( date, uid ) DO UPDATE set exercise = %s, stretch = %s, sit = %s, sss = %s, journal = %s, vitamins = %s, brush_am = %s, brush_pm = %s, floss = %s, water = %s"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [ uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ])
+        curs.execute(sql, [ timezone, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ])
         conn.commit()
         curs.close()
         conn.close()
@@ -266,25 +266,25 @@ def harris_benedict( age, height, weight, sex, activity ):
         
     return int(((10 * weight) + ( 6.25 * height ) - ( 5 * age ) +  sex_modifer) * activity_multiplier[activity])
 
-def eaten_today( uid ):
+def eaten_today( uid, timezone ):
     try:
-        sql = "SELECT food.description, eaten_daily.quantity, food.calories * eaten_daily.quantity, food.precision FROM eaten_daily INNER JOIN food ON eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        sql = "SELECT food.description, eaten_daily.quantity, food.calories * eaten_daily.quantity, food.precision FROM eaten_daily INNER JOIN food ON eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date at timezone %s;"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql,[uid])
+        curs.execute(sql,[uid, timezone])
         eaten_today = curs.fetchall()
         # Do I need a if eaten_today == None like in the current function?
         return eaten_today
     except Exception as e:
         raise e
 
-def calories_today( uid ):
+def calories_today( uid, timezone ):
     try:
         total_daily_calories = 0
-        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date at timezone %s;"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql,[uid])
+        curs.execute(sql,[uid, timezone])
         rows_calories = curs.fetchall()
         for row in rows_calories:
             total_daily_calories = total_daily_calories + row[0] * row[1]
@@ -317,12 +317,12 @@ def insert_food_db( description, precision, calories ):
     except Exception as e:
         raise e
 
-def insert_food_today( uid, fid, quantity ):
+def insert_food_today( uid, fid, quantity, timezone ):
     try:
-        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( current_date, %s, %s, %s );"
+        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( current_date at timezone %s, %s, %s, %s );"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [uid, fid, quantity])
+        curs.execute(sql, [timezone, uid, fid, quantity])
         conn.commit()
         curs.close()
         conn.close()
