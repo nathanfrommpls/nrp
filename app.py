@@ -72,7 +72,7 @@ def today():
             except:
                 water = 0.0
                 
-            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water )
+            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, user_info['timezone'] )
         except Exception as e:
             return render_template("exception.html",exception_string="While updating habits: " + str(e))
         
