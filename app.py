@@ -79,7 +79,7 @@ def today():
         return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),timezone=user_info['timezone'])
     else:
         try:
-            habits = current_habits( 1 )
+            habits = current_habits( 1, user_info['timezone'] )
         except Exception as e:
             return render_template("exception.html",exception_string="While getting current habits: " + str(e))
     
