@@ -281,7 +281,7 @@ def eaten_today( uid, timezone ):
 def calories_today( uid, timezone ):
     try:
         total_daily_calories = 0
-        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_timestamp at timezone %s;"
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_timestamp at time zone %s;"
         conn = get_db_conn()
         curs = conn.cursor()
         curs.execute(sql,[uid, timezone])
