@@ -120,7 +120,7 @@ def atethisthing():
         uid = 1
         fid = request.form['fid']
         quantity = request.form['quantity']
-        insert_food_today( uid, fid, quantity )
+        insert_food_today( uid, fid, quantity, user_info['timezone'] )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
 
@@ -136,7 +136,7 @@ def atethisnewthing():
         calories = request.form['calories']
         insert_food_db( description, precision, calories )
         foods = search_food(request.form['description'])
-        insert_food_today( uid, foods[0][0], quantity )
+        insert_food_today( uid, foods[0][0], quantity, user_info['timezone'] )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
