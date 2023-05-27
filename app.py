@@ -72,22 +72,20 @@ def today():
             except:
                 water = 0.0
                 
-            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water )
+            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, user_info['timezone'] )
         except Exception as e:
             return render_template("exception.html",exception_string="While updating habits: " + str(e))
         
-        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1))
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),timezone=user_info['timezone'])
     else:
         try:
-            habits = current_habits( 1 )
+            habits = current_habits( 1, user_info['timezone'] )
         except Exception as e:
             return render_template("exception.html",exception_string="While getting current habits: " + str(e))
     
-        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1))
+        return render_template("dashboard.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1),timezone=user_info['timezone'])
 
-
-
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User")
+    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User",timezone=user_info['timezone'])
 
 @app.route("/food/",methods=['GET', 'POST'])
 def food():
@@ -96,7 +94,7 @@ def food():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
-    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],daily_calories=calories_today(1),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1))
+    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1, user_info['timezone']),timezone=user_info['timezone'])
 
 @app.route("/atethissearch/",methods=['GET', 'POST'])
 def atethissearch():
@@ -122,7 +120,8 @@ def atethisthing():
         uid = 1
         fid = request.form['fid']
         quantity = request.form['quantity']
-        insert_food_today( uid, fid, quantity )
+        user_info = quien_es( 1 )
+        insert_food_today( uid, fid, quantity, user_info['timezone'] )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
 
@@ -132,13 +131,14 @@ def atethisthing():
 def atethisnewthing():
     try:
         uid = 1
+        user_info = quien_es( 1 )
         quantity = request.form['quantity']
         precision = request.form['precision']
         description = request.form['description']
         calories = request.form['calories']
         insert_food_db( description, precision, calories )
         foods = search_food(request.form['description'])
-        insert_food_today( uid, foods[0][0], quantity )
+        insert_food_today( uid, foods[0][0], quantity, user_info['timezone'] )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
@@ -151,7 +151,7 @@ def report():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Report")
+    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Report",timezone=user_info['timezone'])
 
 @app.route("/user/",methods=['GET', 'POST'])
 def user():
@@ -160,7 +160,7 @@ def user():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User")
+    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User",timezone=user_info['timezone'])
 
 @app.route("/admin/",methods=['GET', 'POST'])
 def admin():
@@ -169,7 +169,7 @@ def admin():
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Admin")
+    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Admin",timezone=user_info['timezone'])
 
 # Database
 def get_db_conn():
@@ -192,14 +192,14 @@ def get_db_conn():
 def quien_es( uid ):
     try:
         conn = get_db_conn()
-        sql = "SELECT users.name, users.birthdate, users.height, users.sex, health_metrics.date, health_metrics.mass, health_metrics.systolic, health_metrics.diastolic FROM users INNER JOIN health_metrics ON users.uid = health_metrics.uid WHERE users.uid = %s ORDER BY health_metrics.date DESC LIMIT 1;"
+        sql = "SELECT users.name, users.birthdate, users.height, users.sex, health_metrics.date, health_metrics.mass, health_metrics.systolic, health_metrics.diastolic, users.timezone FROM users INNER JOIN health_metrics ON users.uid = health_metrics.uid WHERE users.uid = %s ORDER BY health_metrics.date DESC LIMIT 1;"
         curs = conn.cursor()
         curs.execute(sql, [uid])
         query_results = curs.fetchone()
         if query_results == None:
             raise Exception("No user info returned from database.")
 
-        user_info = { "name": query_results[0], "birthdate": query_results[1], "height": query_results[2], "sex": query_results[3], "mass": query_results[5], "systolic": query_results[6], "diastolic": query_results[7] }
+        user_info = { "name": query_results[0], "birthdate": query_results[1], "height": query_results[2], "sex": query_results[3], "mass": query_results[5], "systolic": query_results[6], "diastolic": query_results[7], "timezone": query_results[8] }
         curs.close()
         conn.close()
         return user_info
@@ -207,12 +207,12 @@ def quien_es( uid ):
         raise e
     
     
-def current_habits( uid ):
+def current_habits( uid, timezone ):
     try:
-        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = current_date"
+        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = date(current_timestamp at time zone %s)"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [uid])
+        curs.execute(sql, [uid, timezone])
         habit_bools = curs.fetchone()
         if habit_bools == None:
             curs.close()
@@ -225,12 +225,12 @@ def current_habits( uid ):
     except Exception as e:
         raise e
 
-def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ):
+def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, timezone):
     try:
-        sql = "INSERT INTO habits ( date, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ) values ( current_date, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ) ON CONFLICT ( date, uid ) DO UPDATE set exercise = %s, stretch = %s, sit = %s, sss = %s, journal = %s, vitamins = %s, brush_am = %s, brush_pm = %s, floss = %s, water = %s"
+        sql = "INSERT INTO habits ( date, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ) values ( date(current_timestamp at time zone %s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ) ON CONFLICT ( date, uid ) DO UPDATE set exercise = %s, stretch = %s, sit = %s, sss = %s, journal = %s, vitamins = %s, brush_am = %s, brush_pm = %s, floss = %s, water = %s"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [ uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ])
+        curs.execute(sql, [ timezone, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ])
         conn.commit()
         curs.close()
         conn.close()
@@ -268,25 +268,25 @@ def harris_benedict( age, height, weight, sex, activity ):
         
     return int(((10 * weight) + ( 6.25 * height ) - ( 5 * age ) +  sex_modifer) * activity_multiplier[activity])
 
-def eaten_today( uid ):
+def eaten_today( uid, timezone ):
     try:
-        sql = "SELECT food.description, eaten_daily.quantity, food.calories * eaten_daily.quantity, food.precision FROM eaten_daily INNER JOIN food ON eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        sql = "SELECT food.description, eaten_daily.quantity, food.calories * eaten_daily.quantity, food.precision FROM eaten_daily INNER JOIN food ON eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = date(current_timestamp at time zone %s)"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql,[uid])
+        curs.execute(sql,[uid, timezone])
         eaten_today = curs.fetchall()
         # Do I need a if eaten_today == None like in the current function?
         return eaten_today
     except Exception as e:
         raise e
 
-def calories_today( uid ):
+def calories_today( uid, timezone ):
     try:
         total_daily_calories = 0
-        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = current_date;"
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = date(current_timestamp at time zone %s)"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql,[uid])
+        curs.execute(sql,[uid, timezone])
         rows_calories = curs.fetchall()
         for row in rows_calories:
             total_daily_calories = total_daily_calories + row[0] * row[1]
@@ -319,12 +319,12 @@ def insert_food_db( description, precision, calories ):
     except Exception as e:
         raise e
 
-def insert_food_today( uid, fid, quantity ):
+def insert_food_today( uid, fid, quantity, timezone ):
     try:
-        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( current_date, %s, %s, %s );"
+        sql = "INSERT INTO eaten_daily ( date, uid, fid, quantity ) values ( date(current_timestamp at time zone %s), %s, %s, %s );"
         conn = get_db_conn()
         curs = conn.cursor()
-        curs.execute(sql, [uid, fid, quantity])
+        curs.execute(sql, [timezone, uid, fid, quantity])
         conn.commit()
         curs.close()
         conn.close()
