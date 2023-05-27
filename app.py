@@ -120,6 +120,7 @@ def atethisthing():
         uid = 1
         fid = request.form['fid']
         quantity = request.form['quantity']
+        user_info = quien_es( 1 )
         insert_food_today( uid, fid, quantity, user_info['timezone'] )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
@@ -130,6 +131,7 @@ def atethisthing():
 def atethisnewthing():
     try:
         uid = 1
+        user_info = quien_es( 1 )
         quantity = request.form['quantity']
         precision = request.form['precision']
         description = request.form['description']
