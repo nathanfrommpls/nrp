@@ -25,7 +25,7 @@ psql -h localhost -U postgres
 You can then create the required database and tables:
 ```
 CREATE DATABASE nrp;
-CREATE TABLE users ( uid SERIAL PRIMARY KEY, name TEXT, birthdate DATE, height SMALLINT, sex SMALLINT );
+CREATE TABLE users ( uid SERIAL PRIMARY KEY, name TEXT, birthdate DATE, height SMALLINT, sex SMALLINT, timezone TEXT );
 CREATE TABLE health_metrics ( uid INT, date DATE, mass REAL, systolic SMALLINT, diastolic SMALLINT );
 CREATE TABLE habits ( date DATE, uid INTEGER, exercise BOOLEAN, stretch BOOLEAN, sit BOOLEAN, sss BOOLEAN, journal BOOLEAN, vitamins BOOLEAN, brush_am BOOLEAN, brush_pm BOOLEAN, floss BOOLEAN, water REAL, UNIQUE ( date, uid ));
 CREATE TABLE food ( fid SERIAL PRIMARY KEY, description TEXT, precision REAL, calories REAL );
