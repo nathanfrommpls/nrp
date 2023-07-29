@@ -1,14 +1,96 @@
 from flask import Flask, render_template, request,redirect
+# from werkzeug.middleware.proxy_fix import ProxyFix # Uncomment when deployed to production, i.e. nginx and gunicorn
 import json
 import psycopg2
 import datetime
 
+# Production deployment requires instantiating the app wit ProxyFix
 app = Flask(__name__)
+
+# app.wsgi_app = ProxyFix( # Uncomment when deployed to production, i.e. nginx and gunicorn
+#    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+# )
 
 @app.route("/")
 def index():
-    return redirect("/today/", code=302)
+    return redirect("/newtoday/", code=302)
 
+@app.route("/newtoday/",methods=['GET', 'POST'])
+def newtoday():
+    today = datetime.date.today()
+    try:
+        user_info = quien_es( 1 )
+    except Exception as e:
+        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+    
+    if request.method == 'POST':
+        try:
+            # ¡Qué boludes! I am certain this is a very hacky way to deal with checkboxes
+            # need to research the correct way.
+            try:
+                exercise = bool(request.form['exercise'])
+            except:
+                exercise = False
+                
+            try:
+                stretch = bool(request.form['stretch'])
+            except:
+                stretch = False
+
+            try:    
+                sit = bool(request.form['sit'])
+            except:
+                sit = False
+
+            try:
+                sss = bool(request.form['sss'])
+            except:
+                sss = False
+
+            try:
+                journal = bool(request.form['journal'])
+            except:
+                journal = False
+
+            try:
+                vitamins = bool(request.form['vitamins'])
+            except:
+                vitamins = False
+
+            try:
+                brush_am = bool(request.form['brush_am'])
+            except:
+                brush_am = False
+
+            try:
+                brush_pm = bool(request.form['brush_pm'])
+            except:
+                brush_pm = False
+
+            try:
+                floss = bool(request.form['floss'])
+            except:
+                floss = False
+
+            try:
+                water = float(request.form['water'])
+            except:
+                water = 0.0
+                
+            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, user_info['timezone'] )
+        except Exception as e:
+            return render_template("exception.html",exception_string="While updating habits: " + str(e))
+        
+        return render_template("today.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=exercise,stretch=stretch,sit=sit,sss=sss,journal=journal,vitamins=vitamins,brush_am=brush_am,brush_pm=brush_pm,floss=floss,water_drank=water,daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),timezone=user_info['timezone'],foods=eaten_today(1, user_info['timezone']))
+    else:
+        try:
+            habits = current_habits( 1, user_info['timezone'] )
+        except Exception as e:
+            return render_template("exception.html",exception_string="While getting current habits: " + str(e))
+    
+        return render_template("today.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],exercise=habits[0],stretch=habits[1],sit=habits[2],sss=habits[3],journal=habits[4],vitamins=habits[5],brush_am=habits[6],brush_pm=habits[7],floss=habits[8],water_drank=habits[9],daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),  user_info['height'], user_info['mass'], user_info['sex'], 1),timezone=user_info['timezone'],foods=eaten_today(1, user_info['timezone']))
+
+    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User",timezone=user_info['timezone'])
 
 @app.route("/today/",methods=['GET', 'POST'])
 def today():
@@ -125,7 +207,7 @@ def atethisthing():
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
 
-    return redirect("/food/", code=302)
+    return redirect("/newtoday/", code=302)
 
 @app.route("/atethisnewthing/",methods=['POST'])
 def atethisnewthing():
@@ -142,7 +224,7 @@ def atethisnewthing():
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
-    return redirect("/food/", code=302)
+    return redirect("/newtoday/", code=302)
     
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
