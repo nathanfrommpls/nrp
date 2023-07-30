@@ -19,7 +19,7 @@ def index():
 def newtoday():
     today = datetime.date.today()
     try:
-        me = User( 1 )
+        me = User(1)
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
@@ -77,7 +77,7 @@ def newtoday():
             except:
                 water = 0.0
                 
-            update_habits( 1, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, user_info['timezone'] )
+            update_habits( me.uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, me.timezone )
         except Exception as e:
             return render_template(
                 "exception.html",
@@ -133,53 +133,82 @@ def food():
     try:
         user_info = quien_es( 1 )
     except Exception as e:
-        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While getting User Info: " + str(e)
+        )
     
-    return render_template("food.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],daily_calories=calories_today(1, user_info['timezone']),target_calories=harris_benedict(calculate_age( user_info['birthdate'] ), user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1, user_info['timezone']),timezone=user_info['timezone'])
+    return render_template(
+        "food.html",
+        username=user_info['name'],
+        age=calculate_age( user_info['birthdate'] ),
+        height=user_info['height'],
+        sex=iso_5218_sex( user_info['sex'] ),
+        mass=user_info['mass'],
+        systolic=user_info['systolic'],
+        diastolic=user_info['diastolic'],
+        daily_calories=calories_today(1, user_info['timezone']),
+        target_calories=harris_benedict(calculate_age( user_info['birthdate'] ),user_info['height'], user_info['mass'], user_info['sex'], 1),foods=eaten_today(1, user_info['timezone']),
+        timezone=user_info['timezone']
+    )
 
 @app.route("/atethissearch/",methods=['GET', 'POST'])
 def atethissearch():
     try:
-        user_info = quien_es( 1 )
+        me = User(1)
     except Exception as e:
-        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While getting User Info: " + str(e)
+        )
     
     try:
         foods = search_food(request.form['food_description'])
     except Exception as e:
-        return render_template("exception.html",exception_string="While search for matching food during ate this: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While search for matching food during ate this: " + str(e)
+        )
     
     try:
-        return render_template("atethis.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],foods=foods)
+        return render_template(
+            "atethis.html",
+            user=me,
+            foods=foods
+        )
     except Exception as e:
-        return render_template("exception.html",exception_string="While calling ate this: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While calling ate this: " + str(e)
+        )
 
 
 @app.route("/atethisthing/",methods=['POST'])
 def atethisthing():
     try:
-        uid = 1
+        me = User(1) # Obviously need to update this later so that uid is posted or read from cookie
         fid = request.form['fid']
         quantity = request.form['quantity']
-        user_info = quien_es( 1 )
-        insert_food_today( uid, fid, quantity, user_info['timezone'] )
+        insert_food_today( me.uid, fid, quantity, me.timezone )
     except Exception as e:
-        return render_template("exception.html",exception_string="While trying insert a record of what was eaten: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While trying insert a record of what was eaten: " + str(e)
+        )
 
     return redirect("/newtoday/", code=302)
 
 @app.route("/atethisnewthing/",methods=['POST'])
 def atethisnewthing():
     try:
-        uid = 1
-        user_info = quien_es( 1 )
+        me = User(1)
         quantity = request.form['quantity']
         precision = request.form['precision']
         description = request.form['description']
         calories = request.form['calories']
         insert_food_db( description, precision, calories )
         foods = search_food(request.form['description'])
-        insert_food_today( uid, foods[0][0], quantity, user_info['timezone'] )
+        insert_food_today( me.uid, foods[0][0], quantity, me.timezone )
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
@@ -188,29 +217,50 @@ def atethisnewthing():
 @app.route("/report/",methods=['GET', 'POST'])
 def report():
     try:
-        user_info = quien_es( 1 )
+        me = User(1)
     except Exception as e:
-        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While getting User Info: " + str(e)
+        )
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Report",timezone=user_info['timezone'])
+    return render_template(
+        "under_construction.html",
+        user=me,
+        page_name="Report"
+    )
 
 @app.route("/user/",methods=['GET', 'POST'])
 def user():
     try:
-        user_info = quien_es( 1 )
+        me = User(1)
     except Exception as e:
-        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While getting User Info: " + str(e)
+        )
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User",timezone=user_info['timezone'])
+    return render_template(
+        "under_construction.html",
+        user=me,
+        page_name="User Settings"
+    )
 
 @app.route("/admin/",methods=['GET', 'POST'])
 def admin():
     try:
-        user_info = quien_es( 1 )
+        me = User(1)
     except Exception as e:
-        return render_template("exception.html",exception_string="While getting User Info: " + str(e))
+        return render_template(
+            "exception.html",
+            exception_string="While getting User Info: " + str(e)
+        )
 
-    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="Admin",timezone=user_info['timezone'])
+    return render_template(
+        "under_construction.html",
+        user=me,
+        page_name="Administrative Settings"
+    )
 
 class User:
     def __init__(self, uid ):
@@ -248,13 +298,13 @@ class User:
         today = datetime.date.today()
         return  today.year - self.birthdate.year
     def display_sex(self):
-        if sex == 1:
+        if self.iso_5218_sex == 1:
             return "Male"
-        elif sex == 2:
+        elif self.iso_5218_sex == 2:
             return "Female"
         else:
             raise Exception("Invalid value received for sex.")
-    def harris_benedict( age, height, weight, sex, activity ):
+    def harris_benedict( self ):
         # https://en.wikipedia.org/wiki/Harris%E2%80%93Benedict_equation1
         # 0: Sedentiary
         # 1: Light Exercise
@@ -262,14 +312,16 @@ class User:
         # 3: Heavy Exercise
         # 4: Very Heavy Exercise
         activity_multiplier = [ 1.2, 1.375, 1.55, 1.725, 1.9 ]
-        if self.sex == 1:
+        if self.iso_5218_sex == 1:
             sex_modifer = 5
-        elif self.sex == 2:
+        elif self.iso_5218_sex == 2:
             sex_modifier = -161
         else:
             raise Exception( sex + " is not a valid iso_5218 value." )
         
-        return int(((10 * self.mass) + ( 6.25 * self.height ) - ( 5 * self.get_age() ) +  sex_modifer) * activity_multiplier[activity])
+        return int(((10 * self.mass) + ( 6.25 * self.height ) - ( 5 * self.get_age() ) +  sex_modifer) * activity_multiplier[self.activity_multiplier])
+    def daily_caloric_target(self):
+        return self.harris_benedict()
         
 def get_db_conn():
     try:

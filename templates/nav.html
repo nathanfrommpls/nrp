@@ -12,14 +12,14 @@
 	    <div class="dashuser">
 	      <h1>NRP</h1>
 	      <h2>{{ username }}</h2>
-	      <span>Age: </span><span>{{ age }}</span>
-	      <span>Height: </span><span>{{ height }}</span>
-	      <span>Sex: </span><span>{{ sex }}</span>
-	      <span>Mass: </span><span>{{ mass }}</span>
+	      <span>Age: </span><span>{{ user.age }}</span>
+	      <span>Height: </span><span>{{ user.height }}</span>
+	      <span>Sex: </span><span>{{ user.display_sex() }}</span>
+	      <span>Mass: </span><span>{{ user.mass }}</span>
 	      <span>Blood Pressure: </span>
-	      <span>Systolic: </span><span>{{ systolic }}</span>
-	      <span>Diastolic: </span><span>{{ diastolic }}</span>
-      	      <span>Time Zone: </span><span>{{ timezone }}</span>
+	      <span>Systolic: </span><span>{{ user.systolic }}</span>
+	      <span>Diastolic: </span><span>{{ user.diastolic }}</span>
+      	      <span>Time Zone: </span><span>{{ user.timezone }}</span>
 	    </div>
 	    <div class="dashnav">
 	      <span><a href="../newtoday/">Today</a></span>
