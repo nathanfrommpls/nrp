@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request,redirect
+import flask_login
 # from werkzeug.middleware.proxy_fix import ProxyFix # Uncomment when deployed to production, i.e. nginx and gunicorn
 import json
 import psycopg2
 import datetime
+import hashlib
 
 # Production deployment requires instantiating the app wit ProxyFix
 app = Flask(__name__)
@@ -11,11 +13,28 @@ app = Flask(__name__)
 #    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 # )
 
+app.secret_key = 'changeme'
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        return User(user_id)
+    except Exception as e:
+        return None
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
+    
 @app.route("/")
+@flask_login.login_required
 def index():
-    return redirect("/newtoday/", code=302)
+    return redirect("/newtoday/", code=303)
 
 @app.route("/newtoday/",methods=['GET', 'POST'])
+@flask_login.login_required
 def newtoday():
     today = datetime.date.today()
     try:
@@ -129,6 +148,7 @@ def newtoday():
 #    return render_template("under_construction.html",username=user_info['name'],age=calculate_age( user_info['birthdate'] ),height=user_info['height'],sex=iso_5218_sex( user_info['sex'] ),mass=user_info['mass'],systolic=user_info['systolic'],diastolic=user_info['diastolic'],page_name="User",timezone=user_info['timezone'])
 
 @app.route("/food/",methods=['GET', 'POST'])
+@flask_login.login_required
 def food():
     try:
         user_info = quien_es( 1 )
@@ -153,6 +173,7 @@ def food():
     )
 
 @app.route("/atethissearch/",methods=['GET', 'POST'])
+@flask_login.login_required
 def atethissearch():
     try:
         me = User(1)
@@ -184,6 +205,7 @@ def atethissearch():
 
 
 @app.route("/atethisthing/",methods=['POST'])
+@flask_login.login_required
 def atethisthing():
     try:
         me = User(1) # Obviously need to update this later so that uid is posted or read from cookie
@@ -196,9 +218,10 @@ def atethisthing():
             exception_string="While trying insert a record of what was eaten: " + str(e)
         )
 
-    return redirect("/newtoday/", code=302)
+    return redirect("/newtoday/", code=303)
 
 @app.route("/atethisnewthing/",methods=['POST'])
+@flask_login.login_required
 def atethisnewthing():
     try:
         me = User(1)
@@ -212,9 +235,10 @@ def atethisnewthing():
     except Exception as e:
         return render_template("exception.html",exception_string="While trying insert a record of a new thing that what was eaten: " + str(e))
 
-    return redirect("/newtoday/", code=302)
+    return redirect("/newtoday/", code=303)
     
 @app.route("/report/",methods=['GET', 'POST'])
+@flask_login.login_required
 def report():
     try:
         me = User(1)
@@ -231,6 +255,7 @@ def report():
     )
 
 @app.route("/user/",methods=['GET', 'POST'])
+@flask_login.login_required
 def user():
     try:
         me = User(1)
@@ -246,21 +271,62 @@ def user():
         page_name="User Settings"
     )
 
-@app.route("/admin/",methods=['GET', 'POST'])
-def admin():
-    try:
-        me = User(1)
-    except Exception as e:
-        return render_template(
-            "exception.html",
-            exception_string="While getting User Info: " + str(e)
-        )
+# @app.route("/admin/",methods=['GET', 'POST'])
+# @flask_login.login_required
+# def admin():
+#     try:
+#         me = User(1)
+#     except Exception as e:
+#         return render_template(
+#             "exception.html",
+#             exception_string="While getting User Info: " + str(e)
+#         )
 
-    return render_template(
-        "under_construction.html",
-        user=me,
-        page_name="Administrative Settings"
-    )
+#     return render_template(
+#         "under_construction.html",
+#         user=me,
+#         page_name="Administrative Settings"
+#     )
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return '''
+               <form action='login' method='POST'>
+                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='password' name='password' id='password' placeholder='password'/>
+                <input type='submit' name='submit'/>
+               </form>
+               '''
+    try:
+        salty_hash = get_salty_hash(request.form['email'])
+        sha256hash = hashlib.pbkdf2_hmac('sha256', str.encode(request.form['password']), str.encode(salty_hash[0][1]), 500000)
+        if salty_hash[0][2] == sha256hash.hex():
+            user = User(salty_hash[0][0])
+            flask_login.login_user(user)
+            return redirect("/newtoday/", code=303)
+        
+    except Exception as e:
+        #return 'Bad Login'
+        return render_template("exception.html",exception_string="Login trouble:: " + str(e) + " " + str(salty_hash[0][0]))
+            
+        
+    # if email in users and request.form['password'] == users[email]['password']:
+    #     user = User()
+    #     user.id = email
+    #     flask_login.login_user(user)
+    #     return flask.redirect(flask.url_for('protected'))
+    #return 'Bad login'
+
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.username
+
+@app.route('/logout/')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
 
 class User:
     def __init__(self, uid ):
@@ -278,6 +344,9 @@ class User:
         self.diastolic = user_lookup['diastolic']
         self.timezone = user_lookup['timezone']
         self.activity_multiplier = 0 # Will update database later.
+        self.authenticated = True
+        self.active = True
+        self.anonymous = False
     def lookup(self):
         try:
             conn = get_db_conn()
@@ -322,6 +391,14 @@ class User:
         return int(((10 * self.mass) + ( 6.25 * self.height ) - ( 5 * self.get_age() ) +  sex_modifer) * activity_multiplier[self.activity_multiplier])
     def daily_caloric_target(self):
         return self.harris_benedict()
+    def is_authenticated(self):
+        return true
+    def is_active(self):
+        return true
+    def is_anonymous(self):
+        return false
+    def get_id(self):
+        return self.uid
         
 def get_db_conn():
     try:
@@ -430,5 +507,19 @@ def insert_food_today( uid, fid, quantity, timezone ):
         conn.commit()
         curs.close()
         conn.close()
+    except Exception as e:
+        raise e
+
+# Sophmoric Humor
+def get_salty_hash( email ):
+    try:
+        sql = "SELECT uid, salt, hash from users where email = %s;"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql,[email])
+        salty_hash = curs.fetchall()
+        curs.close()
+        conn.close()
+        return salty_hash
     except Exception as e:
         raise e
