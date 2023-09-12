@@ -40,6 +40,8 @@ def newtoday():
     today = datetime.date.today()
     try:
         #me = User(1)
+        # What other considerations are there with use the flask_login user?
+        # A method to data from database? Maybe on changes on page load?
         me = flask_login.current_user
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
