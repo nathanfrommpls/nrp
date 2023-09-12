@@ -26,7 +26,8 @@ def load_user(user_id):
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
-    return 'Unauthorized', 401
+    return render_template("unauthorized.html")
+    #return 'Unauthorized', 401
     
 @app.route("/")
 @flask_login.login_required
@@ -38,7 +39,8 @@ def index():
 def newtoday():
     today = datetime.date.today()
     try:
-        me = User(1)
+        #me = User(1)
+        me = flask_login.current_user
     except Exception as e:
         return render_template("exception.html",exception_string="While getting User Info: " + str(e))
     
@@ -176,7 +178,8 @@ def food():
 @flask_login.login_required
 def atethissearch():
     try:
-        me = User(1)
+        #me = User(1)
+        me = flask_login.current_user
     except Exception as e:
         return render_template(
             "exception.html",
@@ -195,6 +198,7 @@ def atethissearch():
         return render_template(
             "atethis.html",
             user=me,
+            search_pattern=request.form['food_description'],
             foods=foods
         )
     except Exception as e:
@@ -208,7 +212,8 @@ def atethissearch():
 @flask_login.login_required
 def atethisthing():
     try:
-        me = User(1) # Obviously need to update this later so that uid is posted or read from cookie
+        #me = User(1) # Obviously need to update this later so that uid is posted or read from cookie
+        me = flask_login.current_user
         fid = request.form['fid']
         quantity = request.form['quantity']
         insert_food_today( me.uid, fid, quantity, me.timezone )
@@ -224,7 +229,8 @@ def atethisthing():
 @flask_login.login_required
 def atethisnewthing():
     try:
-        me = User(1)
+        #me = User(1)
+        me = flask_login.current_user
         quantity = request.form['quantity']
         precision = request.form['precision']
         description = request.form['description']
@@ -241,7 +247,8 @@ def atethisnewthing():
 @flask_login.login_required
 def report():
     try:
-        me = User(1)
+        #me = User(1)
+        me = flask_login.current_user
     except Exception as e:
         return render_template(
             "exception.html",
@@ -258,7 +265,8 @@ def report():
 @flask_login.login_required
 def user():
     try:
-        me = User(1)
+        #me = User(1)
+        me = flask_login.current_user
     except Exception as e:
         return render_template(
             "exception.html",
@@ -288,16 +296,11 @@ def user():
 #         page_name="Administrative Settings"
 #     )
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return '''
-               <form action='login' method='POST'>
-                <input type='text' name='email' id='email' placeholder='email'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-               '''
+        return render_template("login.html")
+    
     try:
         salty_hash = get_salty_hash(request.form['email'])
         sha256hash = hashlib.pbkdf2_hmac('sha256', str.encode(request.form['password']), str.encode(salty_hash[0][1]), 500000)
@@ -308,17 +311,9 @@ def login():
         
     except Exception as e:
         #return 'Bad Login'
-        return render_template("exception.html",exception_string="Login trouble:: " + str(e) + " " + str(salty_hash[0][0]))
-            
-        
-    # if email in users and request.form['password'] == users[email]['password']:
-    #     user = User()
-    #     user.id = email
-    #     flask_login.login_user(user)
-    #     return flask.redirect(flask.url_for('protected'))
-    #return 'Bad login'
+        return render_template("exception.html",exception_string="Login trouble:: " + str(e))
 
-@app.route('/protected')
+@app.route('/protected/')
 @flask_login.login_required
 def protected():
     return 'Logged in as: ' + flask_login.current_user.username
@@ -326,7 +321,8 @@ def protected():
 @app.route('/logout/')
 def logout():
     flask_login.logout_user()
-    return 'Logged out'
+    #return 'Logged out'
+    return render_template("logout.html")
 
 class User:
     def __init__(self, uid ):
