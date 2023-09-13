@@ -380,13 +380,13 @@ class User:
         # 4: Very Heavy Exercise
         activity_multiplier = [ 1.2, 1.375, 1.55, 1.725, 1.9 ]
         if self.iso_5218_sex == 1:
-            sex_modifer = 5
+            sex_modifier = 5
         elif self.iso_5218_sex == 2:
             sex_modifier = -161
         else:
             raise Exception( sex + " is not a valid iso_5218 value." )
         
-        return int(((10 * self.mass) + ( 6.25 * self.height ) - ( 5 * self.get_age() ) +  sex_modifer) * activity_multiplier[self.activity_multiplier])
+        return int(((10 * self.mass) + ( 6.25 * self.height ) - ( 5 * self.get_age() ) +  sex_modifier) * activity_multiplier[self.activity_multiplier])
     def daily_caloric_target(self):
         return self.harris_benedict()
     def is_authenticated(self):
