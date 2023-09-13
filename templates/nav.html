@@ -11,8 +11,8 @@
 	  <div class="dashmain">
 	    <div class="dashuser">
 	      <h1>NRP</h1>
-	      <h2>{{ username }}</h2>
-	      <span>Age: </span><span>{{ user.age }}</span>
+	      <h2>{{ user.username }}</h2>
+	      <span>Age: </span><span>{{ user.get_age() }}</span>
 	      <span>Height: </span><span>{{ user.height }}</span>
 	      <span>Sex: </span><span>{{ user.display_sex() }}</span>
 	      <span>Mass: </span><span>{{ user.mass }}</span>
