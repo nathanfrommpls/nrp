@@ -13,16 +13,16 @@
 		</tr>
 		<tr>
 		  <form action="/atethisnewthing/" method="post">
-		    <td><input type="number" step="any" id="quantity" name="quantity" value=""></td>
+		    <td><input type="number" class="integer" step="any" id="quantity" name="quantity" value=""></td>
 		    <td><input type="text" id="food_description" name="description" value="{{search_pattern}}"></td>
-		    <td><input type="number" step="any" id="precision" name="precision" value=""></td>
-		    <td><input type="number" step="any" id="calories" name="calories" value=""></td>
-		    <td><input type="submit" id="search_food" name="search_food" value="is what I ate."></td>
+		    <td><input type="number" class="integer" step="any" id="precision" name="precision" value=""></td>
+		    <td><input type="number" class="integer" step="any" id="calories" name="calories" value=""></td>
+		    <td><input type="submit" id="search_food" name="search_food" value="Ate."></td>
 		  </form>
 		</tr>
 	      </table>
 	      <h2>From Database</h2>
-	      <table class="tbl_atethis">
+	      <table>
 		<tr>
 		  <th>Quantity</th>
 		  <th>Description</th>
@@ -34,11 +34,11 @@
 		<tr>
 		  <form action="/atethisthing/" method="post">
 		    <input type="hidden" id="fid" name="fid" value="{{ food[0] }}">
-		    <td><input type="number" step="any" id="quantity" name="quantity" value=""></td>
+		    <td><input type="number" class="integer" step="any" id="quantity" name="quantity" value=""></td>
 		    <td>{{ food[1] }}</td>
 		    <td>{{ food[2] }}</td>
 		    <td>{{ food[3] }}</td>
-		    <td><input type="submit" id="search_food" name="search_food" value="is what I ate."></td>
+		    <td><input type="submit" id="search_food" name="search_food" value="Ate."></td>
 		  </form>
 		</tr>
 		{%endfor%}

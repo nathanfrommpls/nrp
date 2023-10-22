@@ -281,23 +281,6 @@ def user():
         page_name="User Settings"
     )
 
-# @app.route("/admin/",methods=['GET', 'POST'])
-# @flask_login.login_required
-# def admin():
-#     try:
-#         me = User(1)
-#     except Exception as e:
-#         return render_template(
-#             "exception.html",
-#             exception_string="While getting User Info: " + str(e)
-#         )
-
-#     return render_template(
-#         "under_construction.html",
-#         user=me,
-#         page_name="Administrative Settings"
-#     )
-
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -310,15 +293,17 @@ def login():
             user = User(salty_hash[0][0])
             flask_login.login_user(user)
             return redirect("/newtoday/", code=303)
+        else:
+            return render_template("unauthorized.html")
         
     except Exception as e:
         #return 'Bad Login'
         return render_template("exception.html",exception_string="Login trouble:: " + str(e))
 
-@app.route('/protected/')
-@flask_login.login_required
-def protected():
-    return 'Logged in as: ' + flask_login.current_user.username
+# @app.route('/protected/')
+# @flask_login.login_required
+# def protected():
+#     return 'Logged in as: ' + flask_login.current_user.username
 
 @app.route('/logout/')
 def logout():
