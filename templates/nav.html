@@ -1,27 +1,44 @@
 <html lang="en">
 	<head>
 	  <meta charset="UTF-8">
-	  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0"/>
+	  <meta name="viewport" content="width=430, height=device-height, initial-scale=1.0"/>
 	  <title>NRP</title>
 	  <meta name="description" content="NRP Dashboard"/>
 	  <link rel="canonical" href="http://127.0.0.1/"/>
 	  <link rel="stylesheet" href="/static/style.css">
 	</head>
 	<body>
-	  <div class="dashmain">
-	    <div class="dashuser">
-	      <h1>NRP</h1>
-	      <h2>{{ user.username }}</h2>
-	      <span>Age: </span><span>{{ user.get_age() }}</span>
-	      <span>Height: </span><span>{{ user.height }}</span>
-	      <span>Sex: </span><span>{{ user.display_sex() }}</span>
-	      <span>Mass: </span><span>{{ user.mass }}</span>
-	      <span>Blood Pressure: </span>
-	      <span>Systolic: </span><span>{{ user.systolic }}</span>
-	      <span>Diastolic: </span><span>{{ user.diastolic }}</span>
-      	      <span>Time Zone: </span><span>{{ user.timezone }}</span>
+	  <div class="main">
+	    <div>
+	      <h2>NRP: {{ user.username }}</h2>
+	      <table>
+		<tr>
+		  <td class="key">Age</td>
+		  <td class="value">{{ user.get_age() }}</td>
+		  <td class="key">Height</td>
+		  <td class="value">{{ user.height }}</td>
+		  <td class="key">Sex</td>
+		  <td class="value">{{ user.display_sex() }}</td>
+		  <td class="key">Mass</td>
+		  <td class="value">{{ user.mass }}</td>
+		</tr>
+	      </table>
+	      <table>
+		<tr>
+		  <td class="key">Blood Pressure</td>
+		  <td class="key">Systolic</td><td class="value">{{ user.systolic }}</td>
+		  <td class="key">Diastolic</td><td class="value">{{ user.diastolic }}</td>
+		</tr>
+		<tr>
+	      </table>
+	      <table>
+		<tr>
+		  <td class="key">Time Zone</td><td class="value">{{ user.timezone }}</td>
+		</tr>
+	      </table>
 	    </div>
-	    <div class="dashnav">
+	    </br>
+	    <div>
 	      <span><a href="../newtoday/">Today</a></span>
 	      <span><a href="../report/">Reporting</a></span>
       	      <span><a href="../user/">User Data & Settings</a></span>

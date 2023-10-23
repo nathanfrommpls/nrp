@@ -1,6 +1,6 @@
 <!doctype html>
 {% include "nav.html" %}
-	    <div class="dashleft">
+	    <div>
 	      <h2>Eaten Today</h2>
 	      <span>Calories: </span><span> {{ daily_calories }} </span>/<span> {{ user.daily_caloric_target() }} </span>
 	      <form action="/atethissearch/" method="post">
@@ -23,8 +23,6 @@
 		</tr>
 		{%endfor%}
 	      </table>
-	    </div>
-	    <div class="dashright">
 	      <h2>Daily Habits</h2>
 	      <form action="/newtoday/" method="post">
 		<input type="checkbox" id="exercise" name="exercise" value="1" {% if exercise %} checked {% endif %}>
@@ -50,7 +48,6 @@
 		<span>Liters of Water Target: 3.5</span><br />
 		<input type="submit" id="update_habits" name="update_habits" value="Update Habits">
 	      </form>
-	    </div>
 	  </div>
 	</body>
 </html>
