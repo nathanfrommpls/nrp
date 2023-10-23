@@ -294,11 +294,11 @@ def login():
             flask_login.login_user(user)
             return redirect("/newtoday/", code=303)
         else:
-            return render_template("unauthorized.html")
+            raise Exception("Incorrect Credentials.")
         
     except Exception as e:
         #return 'Bad Login'
-        return render_template("exception.html",exception_string="Login trouble:: " + str(e))
+        return render_template("exception.html",exception_string=str(e))
 
 # @app.route('/protected/')
 # @flask_login.login_required
