@@ -1,0 +1,40 @@
+<!doctype html>
+{% include "nav.html" %}
+<h1>{{ page_name }}</h1>
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Move</th>
+    <th>Stretch</th>
+    <th>Sit</th>
+    <th>SSS</th>
+    <th>Journal</th>
+  </tr>
+  <tr>
+    <th class="value">Meds</th>
+    <th class="value">Brush AM</th>
+    <th class="value">Brush PM</th>
+    <th class="value">Floss</th>
+    <th class="value">Water</th>
+    <th class="value">Calories</th>
+  </tr>
+  {%for day in days %}
+  <tr>
+    <td>{{ day[0] }}</td>
+    <td>{{ day[1] }}</td>
+    <td>{{ day[2] }}</td>
+    <td>{{ day[3] }}</td>
+    <td>{{ day[4] }}</td>
+    <td>{{ day[5] }}</td>
+  </tr>
+  <tr>
+    <td class="value">{{ day[6] }}</td>
+    <td class="value">{{ day[7] }}</td>
+    <td class="value">{{ day[8] }}</td>
+    <td class="value">{{ day[9] }}</td>
+    <td class="value">{{ day[10] }}</td>
+    <td class="value">{{ day[11] }}</td>
+  </tr>
+  {%endfor%}
+</body>
+</html>

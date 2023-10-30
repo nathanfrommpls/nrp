@@ -34,6 +34,11 @@ td.value {
     color:#444444;
 }
 
+th.value {
+    background: #f2f2f2;
+    color:#444444;
+}
+
 .integer {
     width: 5em;
 }

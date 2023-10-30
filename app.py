@@ -249,18 +249,31 @@ def atethisnewthing():
 @flask_login.login_required
 def report():
     try:
+        # This is awful... it should be converted to some kind of join
+        # or at least 2 DB calls that are merged in a data structure after
         #me = User(1)
+        days = []
+        days_back = 7
         me = flask_login.current_user
+        today = datetime.date.today()
+        for day in range(days_back):
+            daily = [ (today - datetime.timedelta(days=day)).strftime('%F') ]
+            daily = daily + list(habits_date( me.uid, (today - datetime.timedelta(days=day)).strftime('%F')))
+            daily.append(calories_date( me.uid, (today - datetime.timedelta(days=day)).strftime('%F')))
+            days.append(daily)
+            daily = []
+        
     except Exception as e:
         return render_template(
             "exception.html",
-            exception_string="While getting User Info: " + str(e)
+            exception_string="While generating report: " + str(e)
         )
 
     return render_template(
-        "under_construction.html",
+        "report.html",
         user=me,
-        page_name="Report"
+        page_name="Report",
+        days=days
     )
 
 @app.route("/user/",methods=['GET', 'POST'])
@@ -299,11 +312,6 @@ def login():
     except Exception as e:
         #return 'Bad Login'
         return render_template("exception.html",exception_string=str(e))
-
-# @app.route('/protected/')
-# @flask_login.login_required
-# def protected():
-#     return 'Logged in as: ' + flask_login.current_user.username
 
 @app.route('/logout/')
 def logout():
@@ -418,6 +426,24 @@ def current_habits( uid, timezone ):
     except Exception as e:
         raise e
 
+def habits_date( uid, date ):
+    try:
+        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = %s"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [uid, date])
+        habit_bools = curs.fetchone()
+        if habit_bools == None:
+            curs.close()
+            conn.close()
+            return ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0 )
+        else:
+            curs.close()
+            conn.close()
+            return habit_bools
+    except Exception as e:
+        raise e
+
 def update_habits( uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water, timezone):
     try:
         sql = "INSERT INTO habits ( date, uid, exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water ) values ( date(current_timestamp at time zone %s), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s ) ON CONFLICT ( date, uid ) DO UPDATE set exercise = %s, stretch = %s, sit = %s, sss = %s, journal = %s, vitamins = %s, brush_am = %s, brush_pm = %s, floss = %s, water = %s"
@@ -449,6 +475,20 @@ def calories_today( uid, timezone ):
         conn = get_db_conn()
         curs = conn.cursor()
         curs.execute(sql,[uid, timezone])
+        rows_calories = curs.fetchall()
+        for row in rows_calories:
+            total_daily_calories = total_daily_calories + row[0] * row[1]
+        return total_daily_calories
+    except Exception as e:
+        raise e
+
+def calories_date( uid, date ):
+    try:
+        total_daily_calories = 0
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = %s"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql,[uid, date])
         rows_calories = curs.fetchall()
         for row in rows_calories:
             total_daily_calories = total_daily_calories + row[0] * row[1]
