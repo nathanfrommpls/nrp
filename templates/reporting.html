@@ -1,0 +1,38 @@
+<!doctype html>
+{% include "nav.html" %}
+<div>
+  <h2>Reporting</h2>
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Movement & Exercise</th>
+      <th>Stretch</th>
+      <th>Sit</th>
+      <th>SSS</th>
+      <th>Journal</th>
+      <th>Medicine & Vitamins</th>
+      <th>Brush Teeth AM</th>
+      <th>Brush Teeth PM</th>
+      <th>Floss Teeth</th>
+      <th>Water Drank</th>
+      <th>Calories</th>
+    </tr>
+    {%for daily_report in daily_reports %}
+    <tr>
+      <td>{{ daily_report[0] }}</td>
+      <td>{{ daily_report[1] }}</td>
+      <td>{{ daily_report[2] }}</td>
+      <td>{{ daily_report[3] }}</td>
+      <td>{{ daily_report[4] }}</td>
+      <td>{{ daily_report[5] }}</td>
+      <td>{{ daily_report[6] }}</td>
+      <td>{{ daily_report[7] }}</td>
+      <td>{{ daily_report[8] }}</td>
+      <td>{{ daily_report[9] }}</td>
+      <td>{{ daily_report[10] }}</td>
+      <td>{{ daily_report[11] }}</td>
+    </tr>
+    {% endfor %}
+  <table>
+</body>
+</html>
