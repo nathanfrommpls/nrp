@@ -140,3 +140,6 @@ tramp
 
 # Database Connection Parameters
 dbconn.json
+
+# sql dumps
+*sql

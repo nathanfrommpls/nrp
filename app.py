@@ -5,6 +5,8 @@ import json
 import psycopg2
 import datetime
 import hashlib
+from dateutil import tz
+import pprint
 
 # Production deployment requires instantiating the app wit ProxyFix
 app = Flask(__name__)
@@ -251,10 +253,15 @@ def report():
     try:
         #me = User(1)
         me = flask_login.current_user
+        return render_template(
+            "reporting.html",
+            user=me,
+            daily_reports = daily_reports( me.uid, me.timezone, 20 )
+        )
     except Exception as e:
         return render_template(
             "exception.html",
-            exception_string="While getting User Info: " + str(e)
+            exception_string="Error building report: " + str(e)
         )
 
     return render_template(
@@ -410,11 +417,30 @@ def current_habits( uid, timezone ):
         if habit_bools == None:
             curs.close()
             conn.close()
-            return ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0 )
+            return [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0 ]
         else:
             curs.close()
             conn.close()
             return habit_bools
+    except Exception as e:
+        raise e
+
+# See notes on calories_on_date()
+def habits_on_date( uid, date ):
+    try:
+        sql = "SELECT exercise, stretch, sit, sss, journal, vitamins, brush_am, brush_pm, floss, water FROM habits WHERE uid = %s AND date = %s"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql, [uid, date])
+        habit_bools = curs.fetchone()
+        if habit_bools == None:
+            curs.close()
+            conn.close()
+            return [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0 ]
+        else:
+            curs.close()
+            conn.close()
+            return list(habit_bools)
     except Exception as e:
         raise e
 
@@ -452,6 +478,24 @@ def calories_today( uid, timezone ):
         rows_calories = curs.fetchall()
         for row in rows_calories:
             total_daily_calories = total_daily_calories + row[0] * row[1]
+        return total_daily_calories
+    except Exception as e:
+        raise e
+
+# Calls to calories_today should be replaced with this function
+# unsure if should be time zone calculation out
+# or special option to function, can python functions be
+# overloaded?
+def calories_on_date( uid, date ):
+    try:
+        total_daily_calories = 0
+        sql = "SELECT eaten_daily.quantity, food.calories FROM eaten_daily INNER JOIN food on eaten_daily.fid = food.fid WHERE eaten_daily.uid = %s AND date = %s"
+        conn = get_db_conn()
+        curs = conn.cursor()
+        curs.execute(sql,[uid, date])
+        rows_calories = curs.fetchall()
+        for row in rows_calories:
+            total_daily_calories = total_daily_calories + ( row[0] * row[1] )
         return total_daily_calories
     except Exception as e:
         raise e
@@ -504,5 +548,20 @@ def get_salty_hash( email ):
         curs.close()
         conn.close()
         return salty_hash
+    except Exception as e:
+        raise e
+
+def daily_reports( uid, timezone, days ):
+    try:
+        mytz = tz.gettz(timezone)
+        today = datetime.datetime.now().astimezone(mytz)
+        outer_array = []
+        for x in range(days,0,-1):
+            inner_array = []
+            inner_array = habits_on_date( uid, (today - datetime.timedelta(days=(days - x))).strftime("%Y-%m-%d") )
+            inner_array.insert(0, (today - datetime.timedelta(days=(days - x))).strftime("%Y-%m-%d"))
+            inner_array.append(calories_on_date(uid, (today - datetime.timedelta(days=(days - x))).strftime("%Y-%m-%d")))
+            outer_array.append(inner_array)
+        return outer_array
     except Exception as e:
         raise e
